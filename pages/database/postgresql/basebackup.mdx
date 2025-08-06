@@ -1,1 +1,138 @@
-# Basebakcup olish
+import { Callout } from 'nextra/components'
+
+# PostgreSQL'dan Basebackup Olish
+
+PostgreSQL'da **basebackup** olish ma'lumotlar bazasining jismoniy nusxasini yaratish uchun ishlatiladi. Bu jarayon zaxira nusxasini olish va uni qayta tiklash uchun muhimdir. Ushbu hujjatda `pg_basebackup` vositasidan foydalanishni ko'rib chiqamiz.
+
+## Kirish
+
+**Basebackup** PostgreSQL serveridagi barcha ma'lumotlar bazasi fayllarini, shu jumladan ma'lumotlar, indekslar va WAL (Write-Ahead Log) fayllarini nusxalash imkonini beradi. Bu jarayon odatda zaxira olish yoki replikatsiya sozlamalari uchun ishlatiladi.
+
+<Callout type="info">
+**Eslatma**: `pg_basebackup` faqat PostgreSQL serverida ishlaydi va to'g'ri sozlamalar talab qilinadi. Quyidagi qadamlar PostgreSQL 13 va undan yuqori versiyalar uchun mos keladi.
+</Callout>
+
+## Talablar
+
+- PostgreSQL server o'rnatilgan bo'lishi kerak.
+- `pg_basebackup` vositasi mavjud bo'lishi kerak (odatda PostgreSQL bilan birga o'rnatiladi).
+- Serverda zaxira olish uchun yetarlicha disk maydoni bo'lishi kerak.
+- Foydalanuvchi uchun `REPLICATION` yoki `SUPERUSER` huquqlari bo'lishi lozim.
+
+## 1-qadam: PostgreSQL sozlamalarini tayyorlash
+
+Zaxira olish uchun PostgreSQL serverida ba'zi sozlamalarni tekshirish va o'zgartirish kerak. Quyidagi faylni tahrirlang:
+
+```bash
+/etc/postgresql/13/main/postgresql.conf
+```
+
+Faylda quyidagi sozlamalarni yoqing yoki qo'shing:
+
+```conf
+wal_level = replica
+max_wal_senders = 10
+hot_standby = on
+```
+
+<Callout type="warning">
+    **Diqqat**: Sozlamalarni o'zgartirgandan so'ng PostgreSQL serverini qayta ishga tushirish kerak.
+</Callout>
+
+Terminalda serverni qayta ishga tushirish uchun:
+
+```bash
+sudo systemctl restart postgresql
+```
+
+## 2-qadam: Foydalanuvchi yaratish
+
+Zaxira olish uchun maxsus foydalanuvchi yaratish tavsiya etiladi. PostgreSQL'ga kirib, quyidagi SQL buyrug'ini bajaring:
+
+```sql
+CREATE ROLE backup_user WITH LOGIN PASSWORD 'secure_password' REPLICATION;
+```
+
+Foydalanuvchi huquqlarini tekshiring:
+
+```sql
+SELECT * FROM pg_roles WHERE rolname = 'backup_user';
+```
+
+## 3-qadam: `pg_hba.conf` sozlamalari
+
+`pg_hba.conf` faylini tahrirlab, zaxira foydalanuvchisi uchun ruxsat bering:
+
+```bash
+/etc/postgresql/13/main/pg_hba.conf
+```
+
+Quyidagi qatorni qo'shing:
+
+```conf
+host replication backup_user 0.0.0.0/0 md5
+```
+
+So'ng serverni qayta ishga tushiring:
+
+```bash
+sudo systemctl restart postgresql
+```
+
+## 4-qadam: Basebackup olish
+
+Endi `pg_basebackup` yordamida zaxira olish mumkin. Quyidagi buyruqni terminalda bajaring:
+
+```bash
+pg_basebackup -h localhost -U backup_user -D /path/to/backup/directory -P -v --wal-method=stream
+```
+
+### Parametrlar tushuntirishi:
+- `-h`: Server manzili (masalan, `localhost`).
+- `-U`: Foydalanuvchi nomi (yuqorida yaratilgan `backup_user`).
+- `-D`: Zaxira saqlanadigan direktoriya.
+- `-P`: Jarayonning progressini ko'rsatish.
+- `-v`: Batafsil ma'lumot chiqarish.
+- `--wal-method=stream`: WAL fayllarini real vaqtda oqim orqali nusxalash.
+
+Zaxira jarayoni tugagach, `/path/to/backup/directory` ichida barcha ma'lumotlar bazasi fayllari paydo bo'ladi.
+
+## 5-qadam: Zaxirani tekshirish
+
+Zaxira fayllarini tekshirish uchun direktoriyaga o'ting va fayllarni ko'ring:
+
+```bash
+ls -l /path/to/backup/directory
+```
+
+Agar fayllar to'g'ri nusxalangan bo'lsa, `base` papkasi, `pg_wal` va boshqa konfiguratsiya fayllarini ko'rishingiz mumkin.
+
+## 6-qadam: Zaxiradan qayta tiklash
+
+Zaxiradan qayta tiklash uchun quyidagi qadamlarni bajaring:
+
+1. PostgreSQL serverini to'xtating:
+
+```bash
+sudo systemctl stop postgresql
+```
+
+2. Zaxira fayllarini server direktoriyasiga ko'chiring:
+
+```bash
+cp -r /path/to/backup/directory/* /var/lib/postgresql/13/main/
+```
+
+3. Serverni qayta ishga tushiring:
+
+```bash
+sudo systemctl start postgresql
+```
+
+<Callout type="success">
+    **Muvaffaqiyat!** Siz PostgreSQL'dan basebackup oldingiz va uni qayta tiklashga tayyor.
+</Callout>
+
+## Xulosa
+
+`pg_basebackup` PostgreSQL ma'lumotlar bazasini zaxiralashning samarali usuli hisoblanadi. Ushbu jarayonni avtomatlashtirish uchun `cron` yoki boshqa skriptlardan foydalanishingiz mumkin. Agar qo'shimcha savollaringiz bo'lsa, PostgreSQL [rasmiy hujjatlarini](https://www.postgresql.org/docs/) o'qing.

@@ -1,4 +1,4 @@
 {
-  "replication": "Replikatsiya",
+  "replication-postgres": "Postgresqlni replikatsiya qilish",
   "basebackup": "Basebackup"
 }

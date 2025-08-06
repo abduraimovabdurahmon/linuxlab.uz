@@ -1,0 +1,159 @@
+import { Callout } from 'nextra/components'
+
+# PostgreSQL Replikatsiyasi
+
+**Replikatsiya** (takrorlash) ma'lumotlar bazasining bir serverdan ikkinchisiga doimiy ravishda nusxalanishini ta'minlaydigan jarayondir. Bu jarayon ma'lumotlar xavfsizligini oshirish, yuklamani muvozanatlash va serverning uzluksiz ishlashini ta'minlash uchun juda muhim. Ushbu hujjatda PostgreSQL-da **asosiy/etakchi (primary)** va **takrorlovchi (standby)** replikatsiya sozlamalarini ko'rib chiqamiz.
+
+## Kirish
+
+PostgreSQL replikatsiyasi, odatda, **stream replication** (oqim replikatsiyasi) deb ataladi. Bunda asosiy serverdagi barcha o'zgarishlar WAL (Write-Ahead Log) fayllari orqali takrorlovchi serverga real vaqtda uzatiladi. Bu ikki xil konfiguratsiyada amalga oshirilishi mumkin:
+
+* **Synchronous Replication (sinxron replikatsiya):** Ma'lumot asosiy serverda saqlanganidan keyin, takrorlovchi serverga ham muvaffaqiyatli yetib borganini tasdiqlaganidan so'nggina operatsiya tugagan hisoblanadi. Bu ma'lumotlar butunligini (data integrity) maksimal darajada ta'minlaydi, ammo operatsiya bajarilishini sekinlashtirishi mumkin.
+* **Asynchronous Replication (asinrxron replikatsiya):** Ma'lumot asosiy serverda saqlangan zahoti operatsiya yakunlangan deb hisoblanadi. Takrorlovchi serverga ma'lumotlarning yetib borishi kafolatlanmaydi, lekin operatsiyalar tezroq bajariladi. Bu eng keng tarqalgan usul hisoblanadi.
+
+<Callout type="info">
+**Eslatma**: Ushbu hujjatda biz PostgreSQL-ning streaming replication usulidan foydalangan holda asosiy va takrorlovchi serverni sozlashni ko'rib chiqamiz. Barcha ko'rsatmalar Debian/Ubuntu operatsion tizimi uchun mo'ljallangan va PostgreSQL 14 yoki undan yuqori versiyalarga mos keladi.
+</Callout>
+
+---
+
+## Talablar
+
+* Ikkita alohida server (biri **asosiy**, ikkinchisi **takrorlovchi**).
+* Har ikkala serverda PostgreSQL o'rnatilgan bo'lishi kerak.
+* Firewall qoidalari 5432 porti orqali trafikka ruxsat berishi kerak.
+* `REPLICATION` huquqiga ega foydalanuvchi yaratilgan bo'lishi kerak.
+
+---
+
+## 1-qadam: Asosiy serverni sozlash
+
+**Asosiy (primary)** server konfiguratsiyasini sozlash orqali replikatsiya uchun tayyorlaymiz.
+
+### `postgresql.conf` faylini tahrirlash
+
+Quyidagi faylni oching:
+
+```bash
+sudo nano /etc/postgresql/14/main/postgresql.conf
+````
+
+Quyidagi sozlamalarni toping yoki qo'shing:
+
+```conf
+listen_addresses = '*'          # Barcha IP manzillardan ulanishga ruxsat berish
+wal_level = replica             # WAL darajasini 'replica' ga o'rnatish
+max_wal_senders = 10            # Replikatsiya uchun ruxsat etilgan bir vaqtning o'zida ulanishlar soni
+hot_standby = on                # Takrorlovchi serverlarning faol holatda bo'lishiga ruxsat berish
+```
+
+### `pg_hba.conf` faylini tahrirlash
+
+Takrorlovchi serverning ulanishiga ruxsat berish uchun `pg_hba.conf` faylini tahrirlang:
+
+```bash
+sudo nano /etc/postgresql/14/main/pg_hba.conf
+```
+
+Faylning oxiriga quyidagi qatorni qo'shing. `takrorlovchi_server_ip` o'rniga takrorlovchi serverning IP manzilini kiriting.
+
+```conf
+host replication all takrorlovchi_server_ip/32 md5
+```
+
+### PostgreSQL'ni qayta ishga tushirish
+
+Sozlamalar kuchga kirishi uchun serverni qayta ishga tushiring:
+
+```bash
+sudo systemctl restart postgresql
+```
+
+-----
+
+## 2-qadam: Takrorlovchi serverni tayyorlash
+
+**Takrorlovchi (standby)** serverda oldingi ma'lumotlarni o'chirib, asosiy serverning nusxasini olamiz.
+
+\<Callout type="warning"\>
+**Diqqat**: Bu qadam takrorlovchi serverdagi barcha ma'lumotlarni o'chiradi. Agar muhim ma'lumotlaringiz bo'lsa, avval zaxira nusxasini oling.
+\</Callout\>
+
+### PostgreSQL xizmatini to'xtatish
+
+Takrorlovchi serverda PostgreSQL xizmatini to'xtating:
+
+```bash
+sudo systemctl stop postgresql
+```
+
+### Ma'lumotlar katalogini tozalash
+
+Eski ma'lumotlarni o'chirib tashlang:
+
+```bash
+sudo rm -r /var/lib/postgresql/14/main/*
+```
+
+### Asosiy serverdan `basebackup` olish
+
+`pg_basebackup` vositasi yordamida asosiy serverdan ma'lumotlarning boshlang'ich nusxasini oling:
+
+```bash
+sudo -u postgres pg_basebackup -h asosiy_server_ip -U postgres -D /var/lib/postgresql/14/main -P -R -S my_replication_slot
+```
+
+#### Parametrlar tushuntirilishi:
+
+  * `-h`: Asosiy serverning IP manzili.
+  * `-U`: Asosiy serverdagi `REPLICATION` huquqiga ega foydalanuvchi.
+  * `-D`: Ma'lumotlar saqlanadigan mahalliy katalog.
+  * `-P`: Jarayonning holatini ko'rsatish.
+  * `-R`: Replikatsiya sozlamalari (`standby.signal` fayli va `postgresql.auto.conf` ga `primary_conninfo` parametrini avtomatik qo'shish).
+  * `-S my_replication_slot`: Doimiy replikatsiya slotini yaratish. Bu WAL fayllarining yo'qolishini oldini oladi.
+
+\<Callout type="info"\>
+**Maslahat**: `my_replication_slot` o'rniga o'zingizga mos nom bering. Slot nomini asosiy serverdan `SELECT * FROM pg_replication_slots;` buyrug'i orqali tekshirishingiz mumkin.
+\</Callout\>
+
+### PostgreSQL xizmatini ishga tushirish
+
+Nusxa olish tugagach, takrorlovchi serverni ishga tushiring. U endi avtomatik ravishda asosiy serverga ulanadi va replikatsiyani boshlaydi.
+
+```bash
+sudo systemctl start postgresql
+```
+
+-----
+
+## 3-qadam: Replikatsiya holatini tekshirish
+
+Replikatsiya muvaffaqiyatli ishlashini tekshirish uchun quyidagi buyruqlardan foydalanishingiz mumkin.
+
+### Asosiy serverda
+
+`psql` ga kirib, replikatsiya holatini ko'ring:
+
+```sql
+SELECT * FROM pg_stat_replication;
+```
+
+Bu buyruq takrorlovchi serverning ulanishi va replikatsiya jarayoni haqida ma'lumot beradi.
+
+### Takrorlovchi serverda
+
+`psql` ga kirib, takrorlovchi serverning holatini tekshiring:
+
+```sql
+SELECT pg_is_in_recovery();
+```
+
+Agar natija `t` (true) bo'lsa, server replikatsiya holatida ekanligini bildiradi.
+
+-----
+
+## Xulosa
+
+PostgreSQL replikatsiyasi serverlaringizni himoyalash va yuqori ishlash samaradorligini ta'minlash uchun kuchli vositadir. To'g'ri sozlamalar bilan siz ma'lumotlaringizni doimiy ravishda bir serverdan ikkinchisiga ko'chirishingiz mumkin. Agar qo'shimcha savollaringiz bo'lsa, PostgreSQL [rasmiy hujjatlarini](https://www.postgresql.org/docs/current/warm-standby.html) o'qing.
+
+```
