@@ -1,5 +1,7 @@
+import colors from "tailwindcss/colors";
+
 export default {
-    logo: <span style={{ display: "inline-flex", alignItems: "center" }}>Linux <img src="/terminal.webp" alt="Icon" style={{ marginLeft: "5px", width:20 }} /></span>,
+    logo: <span style={{fontWeight: "bold"}}>Linux Lab</span>,
     project: {
         link: "https://github.com/abduraimovabdurahmon/linuxlab.uz",
     },
