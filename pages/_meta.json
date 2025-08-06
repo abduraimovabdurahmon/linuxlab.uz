@@ -1,0 +1,10 @@
+{
+  "index": "Bosh sahifa",
+  "database": "Ma'lumotlar bazasi",
+  "contact": {
+    "title": "Bog'lanish",
+    "type": "page",
+    "href": "https://t.me/mistfable",
+    "newWindow": true
+  }
+}
