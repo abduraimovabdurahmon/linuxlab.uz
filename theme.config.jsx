@@ -1,5 +1,3 @@
-import colors from "tailwindcss/colors";
-
 export default {
     logo: <span style={{fontWeight: "bold"}}>Linux Lab</span>,
     project: {
