@@ -8,6 +8,7 @@
     "start": "next start",
     "lint": "next lint"
   },
+
   "dependencies": {
     "next": "14.0.4",
     "nextra": "^2.13.2",
