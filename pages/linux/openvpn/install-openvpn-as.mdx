@@ -1,0 +1,97 @@
+import { Callout } from 'nextra-theme-docs'
+
+# OpenVPN Access Server (AS) O‘rnatish Qo‘llanmasi
+
+**OpenVPN Access Server** — bu OpenVPN’ning rasmiy tijorat versiyasi bo‘lib, VPN serverini tez va qulay tarzda sozlash hamda boshqarish uchun veb-interfeys va CLI imkoniyatlarini taqdim etadi.
+
+<Callout type="warning">
+OpenVPN ASga faqat 2 ta foydalanuvchi ulana olishi mumkin
+</Callout>
+
+> ⚠ **Muhim:** OpenVPN AS o‘rnatishda **Ubuntu versiyasiga e’tibor bering**:
+> - Agar **Ubuntu 20.04 (Focal)** ishlatayotgan bo‘lsangiz — quyidagi qo‘llanma to‘liq mos keladi.
+> - Agar **Ubuntu 22.04 (Jammy)** ishlatayotgan bo‘lsangiz — `focal` o‘rniga `jammy` yozing va `apt-key` o‘rniga `keyrings` usulidan foydalaning (quyida ko‘rsatib o‘tiladi).
+
+---
+
+## 1. Kerakli Paketlarni Yangilash va O‘rnatish
+
+O‘rnatishdan avval tizim paketlarini yangilang va OpenVPN AS ishlashi uchun zarur bo‘lgan bog‘liqliklarni o‘rnating:
+
+```bash
+sudo apt update && sudo apt upgrade -y
+sudo apt install ca-certificates wget net-tools gnupg -y
+````
+
+---
+
+## 2. OpenVPN AS Omborini Qo‘shish
+
+### 🔹 Ubuntu 20.04 (Focal) uchun:
+
+```bash
+wget -qO - https://as-repository.openvpn.net/as-repo-public.gpg | apt-key add -
+echo "deb http://as-repository.openvpn.net/as/debian focal main" > /etc/apt/sources.list.d/openvpn-as-repo.list
+sudo apt update
+```
+
+### 🔹 Ubuntu 22.04 (Jammy) uchun:
+
+```bash
+sudo mkdir -p /etc/apt/keyrings
+wget -qO - https://as-repository.openvpn.net/as-repo-public.gpg | sudo tee /etc/apt/keyrings/openvpn.asc
+echo "deb [signed-by=/etc/apt/keyrings/openvpn.asc] http://as-repository.openvpn.net/as/debian jammy main" | sudo tee /etc/apt/sources.list.d/openvpn-as-repo.list
+sudo apt update
+```
+
+---
+
+## 3. OpenVPN AS Paketini O‘rnatish
+
+Quyidagi buyruq yordamida OpenVPN AS’ni o‘rnating:
+
+```bash
+sudo apt install openvpn-as -y
+```
+
+---
+
+## 4. Foydalanuvchi Yaratish va Parol O‘rnatish
+
+O‘rnatish tugagach, terminalda openVPN AS uchun login va parol chiqadi:
+
+Taxminan mana bunday
+```
++++++++++++++++++++++++++++++++++++++++++++++++
+Access Server 3.0.0 has been successfully installed in /usr/local/openvpn_as
+Configuration log file has been written to /usr/local/openvpn_as/init.log
+
+
+Access Server Web UIs are available here:
+Admin  UI: https://<your-ip-address>:943/admin
+Client UI: https://<your-ip-address>:943/
+To login please use the "openvpn" account with "<your-openvpn-password>" password.
+(password can be changed on Admin UI)
++++++++++++++++++++++++++++++++++++++++++++++++
+```
+
+Bu yerdagi login va parolni saqlab olish tavsiya etiladi. Web interfeysga kirish uchun ushbu ma'lumotlardan foydalanasiz.
+
+---
+
+## 5. Veb-interfeysga Kirish
+
+OpenVPN AS serveriga ulanish uchun brauzeringizda quyidagi manzilni oching:
+
+```url
+http://<server-ip>:943
+```
+
+**Izoh:** `<server-ip>` o‘rniga serveringizning IP manzilini yozing.
+
+
+## 6. Xulosa
+
+Bu qo'llanmada OpenVPN Access Server’ni Ubuntu tizimida qanday o‘rnatish va sozlash ko‘rsatildi. O'rnatish jarayonini tugatganingizdan so'ng veb-interfeysda o'zingizni profile.ovpn faylingizni olishingiz kerak. Buni ushbu maqolada o'qishingiz mumkin:
+
+- [OpenVPNni ishlatish](/linux/openvpn/use)
