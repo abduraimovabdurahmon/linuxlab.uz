@@ -1,0 +1,137 @@
+---
+title: "Java Dasturlash Tili"
+description: "Java dasturlash tilini o‘rganish bo‘yicha amaliy qo‘llanma."
+---
+
+import { Callout } from 'nextra/components'
+ 
+import { Tabs } from 'nextra/components'
+
+## ☕ Java Dasturlash Tili Haqida
+
+Java — bu **ob'ektga yo'naltirilgan dasturlash tili** bo‘lib, keng tarqalgan va turli sohalarda qo‘llaniladi.  
+U **platformadan mustaqil**, yuqori samaradorlik va xavfsizlikni ta’minlaydi.
+
+Java ilovalari **kompyuter arxitekturasidan qat’i nazar** har qanday platformada ishlay oladi.  
+Sintaksisi esa **C va C++** tillariga o‘xshaydi, bu esa boshqa tillardan o‘tishni osonlashtiradi.
+
+---
+
+### 🛠 JDK, JRE va JVM
+
+<div style={{ display: 'grid', gap: '1rem' }}>
+  <div style={{ padding: '1rem', border: '1px solid #444', borderRadius: '8px', background: '#111' }}>
+    <h3>☕ JDK — Java Development Kit</h3>
+    <p>Java dasturlarini ishlab chiqish uchun zarur bo‘lgan vositalar to‘plami.
+    Ichiga kompilyator, kutubxonalar va ishlab chiqish vositalari kiradi.</p>
+  </div>
+
+  <div style={{ padding: '1rem', border: '1px solid #444', borderRadius: '8px', background: '#111' }}>
+    <h3>📦 JRE — Java Runtime Environment</h3>
+    <p>Java dasturlarini ishga tushirish uchun zarur bo‘lgan muhit.
+    JVM va asosiy Java kutubxonalaridan iborat.</p>
+  </div>
+
+  <div style={{ padding: '1rem', border: '1px solid #444', borderRadius: '8px', background: '#111' }}>
+    <h3>⚙️ JVM — Java Virtual Machine</h3>
+    <p>Java dasturini <b>bytecode</b> ko‘rinishidan mashina kodiga aylantiradi
+    va bajarilishini ta’minlaydi. Platformaga moslashuvchanlikni JVM beradi.</p>
+  </div>
+</div>
+
+
+
+## ⚙️ Java ni o'rnatish
+
+<Tabs items={['Windows', 'Linux', 'MacOS']}>
+
+<Tabs.Tab>
+**Windows** — Java’ni o‘rnatish uchun:
+
+1. [Java rasmiy veb-saytiga](https://www.oracle.com/java/technologies/javase-jdk11-downloads.html) o'ting.  
+2. "JDK Download" bo‘limidan Windows uchun JDK ni yuklab oling.  
+3. Yuklab olingan faylni ishga tushiring va o‘rnatish jarayonini bajaring.  
+4. "System Properties" → "Environment Variables" ga kiring.  
+5. "Path" o‘zgaruvchisiga JDK `bin` papkasi yo‘lini qo‘shing (masalan: `C:\Program Files\Java\jdk-11\bin`).  
+6. O‘zgarishlarni saqlang va kompyuterni qayta yuklang.  
+
+```bash
+java -version
+```
+
+</Tabs.Tab>
+
+<Tabs.Tab>
+**Linux** — Java’ni o‘rnatish uchun:
+
+1. Terminalni oching.
+2. JDK o‘rnatish:
+
+```bash
+sudo apt update
+sudo apt install default-jdk
+```
+
+3. Tekshirish:
+
+```bash
+java -version
+```
+
+</Tabs.Tab>
+
+<Tabs.Tab>
+**MacOS** — Java’ni o‘rnatish uchun:
+
+1. [Java rasmiy veb-saytiga](https://www.oracle.com/java/technologies/javase-jdk11-downloads.html) o'ting.
+2. "JDK Download" bo‘limidan MacOS uchun JDK ni yuklab oling.
+3. Yuklab olingan faylni ishga tushiring va o‘rnatish jarayonini bajaring.
+4. Tekshirish:
+
+```bash
+java -version
+```
+
+</Tabs.Tab>
+
+</Tabs>
+
+
+## ✏ Java sintaksisi
+
+Java dasturlash tilining asosiy sintaksisi bilan tanishamiz:
+
+**Main.java**
+```java
+public class Main {
+    public static void main(String[] args) {
+        System.out.println("Salom, Dunyo!");
+    }
+}
+```
+
+Java da class nomlari doim bosh harf bilan boshlanishi kerak, shuning uchun biz kodimizga ``Main.java`` deb nom berdik.
+
+<Callout type="warning">
+Javada fayl nomi class nomi bilan bir xil bo‘lishi kerak!
+</Callout>
+
+## 🏃 Java kodini ishlatish
+
+Java kodini ishlatish uchun quyidagi qadamlarni bajaring:
+
+1. **Kodni kompilyatsiya qilish**: Terminal yoki cmdni oching va kod joylashgan papkaga o'ting. Keyin quyidagi buyruqni bajaring:
+
+```bash
+javac Main.java
+```
+
+Bu buyruq `Main.java` faylini kompilyatsiya qiladi va `Main.class` faylini yaratadi.
+
+2. **Kodni ishga tushirish**: Kompilyatsiya qilingan kodni ishga tushirish uchun quyidagi buyruqni bajaring:
+
+```bash
+java Main
+```
+
+Natijada, terminalda "Salom, Dunyo!" xabari ko'rsatiladi.
