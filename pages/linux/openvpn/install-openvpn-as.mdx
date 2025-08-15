@@ -23,7 +23,7 @@ OpenVPN ASga faqat 2 ta foydalanuvchi ulana olishi mumkin
 
 O‘rnatishdan avval tizim paketlarini yangilang va OpenVPN AS ishlashi uchun zarur bo‘lgan bog‘liqliklarni o‘rnating:
 
-```bash
+```bash copy
 sudo apt update && sudo apt upgrade -y
 sudo apt install ca-certificates wget net-tools gnupg -y
 ````
@@ -34,7 +34,7 @@ sudo apt install ca-certificates wget net-tools gnupg -y
 
 ### 🔹 Ubuntu 20.04 (Focal) uchun:
 
-```bash
+```bash copy
 wget -qO - https://as-repository.openvpn.net/as-repo-public.gpg | apt-key add -
 echo "deb http://as-repository.openvpn.net/as/debian focal main" > /etc/apt/sources.list.d/openvpn-as-repo.list
 sudo apt update
@@ -42,7 +42,7 @@ sudo apt update
 
 ### 🔹 Ubuntu 22.04 (Jammy) uchun:
 
-```bash
+```bash copy
 sudo mkdir -p /etc/apt/keyrings
 wget -qO - https://as-repository.openvpn.net/as-repo-public.gpg | sudo tee /etc/apt/keyrings/openvpn.asc
 echo "deb [signed-by=/etc/apt/keyrings/openvpn.asc] http://as-repository.openvpn.net/as/debian jammy main" | sudo tee /etc/apt/sources.list.d/openvpn-as-repo.list
@@ -55,7 +55,7 @@ sudo apt update
 
 Quyidagi buyruq yordamida OpenVPN AS’ni o‘rnating:
 
-```bash
+```bash copy
 sudo apt install openvpn-as -y
 ```
 
@@ -88,7 +88,7 @@ Bu yerdagi login va parolni saqlab olish tavsiya etiladi. Web interfeysga kirish
 
 OpenVPN AS serveriga ulanish uchun brauzeringizda quyidagi manzilni oching:
 
-```url
+```url copy
 https://<server-ip>:943
 ```
 

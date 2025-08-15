@@ -3,9 +3,7 @@ title: "Java Dasturlash Tili"
 description: "Java dasturlash tilini o‘rganish bo‘yicha amaliy qo‘llanma."
 ---
 
-import { Callout } from 'nextra/components'
- 
-import { Tabs } from 'nextra/components'
+import { Callout, FileTree, Tabs } from 'nextra/components'
 
 ## ☕ Java Dasturlash Tili Haqida
 
@@ -55,7 +53,7 @@ Sintaksisi esa **C va C++** tillariga o‘xshaydi, bu esa boshqa tillardan o‘t
 5. "Path" o‘zgaruvchisiga JDK `bin` papkasi yo‘lini qo‘shing (masalan: `C:\Program Files\Java\jdk-11\bin`).  
 6. O‘zgarishlarni saqlang va kompyuterni qayta yuklang.  
 
-```bash
+```bash copy
 java -version
 ```
 
@@ -67,14 +65,14 @@ java -version
 1. Terminalni oching.
 2. JDK o‘rnatish:
 
-```bash
+```bash copy
 sudo apt update
 sudo apt install default-jdk
 ```
 
 3. Tekshirish:
 
-```bash
+```bash copy
 java -version
 ```
 
@@ -88,7 +86,7 @@ java -version
 3. Yuklab olingan faylni ishga tushiring va o‘rnatish jarayonini bajaring.
 4. Tekshirish:
 
-```bash
+```bash copy
 java -version
 ```
 
@@ -101,8 +99,7 @@ java -version
 
 Java dasturlash tilining asosiy sintaksisi bilan tanishamiz:
 
-**Main.java**
-```java
+```java copy
 public class Main {
     public static void main(String[] args) {
         System.out.println("Salom, Dunyo!");
@@ -111,6 +108,12 @@ public class Main {
 ```
 
 Java da class nomlari doim bosh harf bilan boshlanishi kerak, shuning uchun biz kodimizga ``Main.java`` deb nom berdik.
+
+<FileTree>
+    <FileTree.Folder name="sizning_papkangiz" defaultOpen>
+        <FileTree.File name="Main.java" />
+    </FileTree.Folder>
+</FileTree>
 
 <Callout type="warning">
 Javada fayl nomi class nomi bilan bir xil bo‘lishi kerak!
@@ -122,7 +125,7 @@ Java kodini ishlatish uchun quyidagi qadamlarni bajaring:
 
 1. **Kodni kompilyatsiya qilish**: Terminal yoki cmdni oching va kod joylashgan papkaga o'ting. Keyin quyidagi buyruqni bajaring:
 
-```bash
+```bash copy
 javac Main.java
 ```
 
@@ -130,7 +133,7 @@ Bu buyruq `Main.java` faylini kompilyatsiya qiladi va `Main.class` faylini yarat
 
 2. **Kodni ishga tushirish**: Kompilyatsiya qilingan kodni ishga tushirish uchun quyidagi buyruqni bajaring:
 
-```bash
+```bash copy
 java Main
 ```
 
