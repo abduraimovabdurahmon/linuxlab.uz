@@ -1,0 +1,164 @@
+import {FileTree, Tabs} from "nextra/components";
+import { Callout } from 'nextra-theme-docs'
+import { FaUbuntu } from "react-icons/fa";
+import { GrFirefox } from "react-icons/gr";
+import { FaChrome } from "react-icons/fa";
+import { SiTorbrowser } from "react-icons/si";
+import { FaTelegram } from "react-icons/fa";
+import { VscVscode } from "react-icons/vsc";
+import { SiFilezilla } from "react-icons/si";
+import { FaDocker } from "react-icons/fa";
+
+
+# 🚀 KasmWeb O‘rnatish Qo‘llanmasi
+
+## ❓ KasmWeb nima?
+
+**KasmWeb** — bu Docker asosida ishlaydigan, veb-brauzer orqali ish stoli muhitlarini taqdim etuvchi platforma. U foydalanuvchilarga xavfsiz va qulay ish muhiti yaratish imkonini beradi.
+Qisqa qilib aytganda, KasmWeb yordamida siz brauzerda ishlaydigan linuxga asoslangan operatsion tizimlarni yaratishingiz va ulardan foydalanishingiz mumkin.
+
+## ⚡ Quick Start - KasmWebni tezkor o‘rnatish
+<Callout type="info">
+    KasmWebni o'rnatish uchun sizning kompyuteringizda yoki serveringizda Docker va Docker Compose o'rnatilgan bo'lishi kerak. Dockerni o'rnatish uchun quidagi linkga qarang: [Docker o'rnatish](https://docs.docker.com/engine/install/).
+</Callout>
+
+KasmWebni tezkor o'rnatish uchun terminalda quyidagi buyruqni ishga tushiring:
+
+```bash copy
+sudo docker run --rm -it --shm-size=512m -p 6901:6901 -e VNC_PW=password kasmweb/desktop:1.17.0
+```
+
+**Tushuntirish:**
+- `--rm`: konteyner to'xtatilganda avtomatik ravishda o'chiriladi.
+- `-it`: interaktiv rejimda ishga tushirish.
+- `--shm-size=512m`: konteyner uchun umumiy xotira hajmini 512 MB qilib belgilash.
+- `-p 6901:6901`: 6901 portini ochish, bu orqali brauzer orqali ish stoli muhitiga kirish mumkin.
+- `-e VNC_PW=password`: VNC parolini `password` qilib belgilash (o'zingizga mos parolni tanlang).
+- `kasmweb/desktop:1.17.0`: KasmWebning Docker imiji.
+
+Agar KasmWeb konteynerini doimiy ishlab turadigan qilmoqchi bo'lsangiz kommandani mana bunday qilib o'zgartirishingiz kerak:
+
+```bash copy
+sudo docker run -d --restart unless-stopped --shm-size=512m -p 6901:6901 -e VNC_PW=password kasmweb/desktop:1.17.0
+```
+
+<Callout type="warning">
+    **Diqqat**: `sudo` buyrug'i faqat linux tizimlarida kerak bo'ladi. Agar siz Windows yoki MacOS tizimlarida Docker Desktopdan foydalanayotgan bo'lsangiz, `sudo` ni olib tashlang.
+</Callout>
+
+Konteyner muaffaqiyatli ishga tushganidan so'ng, brauzerda `http://localhost:6901` manziliga o'ting.
+Sizdan VNC username va parol so'raladi. Username sifatida `kasm_user` ni kiriting va parol sifatida yuqorida belgilangan `password` ni kiriting (agar o'zgartirmagan bo'lsangiz).
+
+<Callout type={'info'} emoji={'🎉'}>Tabriklaymiz siz Ubuntu Focal ni docker bilan ishga tushirdingiz!</Callout>
+
+![KasmWeb](/data/files/devops/docker/kasm/kasm-in-browser.png)
+
+## 📦 Linuxserver Kasm'ni o'rnatish
+
+
+Linuxserver Kasm - bu yuqoridagi Ubuntuni o'rnatishdan ham ko'proq narsalarni taqdim eta oladigan container. U bilan nafaqat Ubuntu, balki boshqa Linux distributivlarini va hatto mustaqil ilovalarni ham o'rnatishingiz mumkin. Bularga misol qilib:
+-  <FaUbuntu style={{display: "inline", verticalAlign: "middle", marginRight: "8px"}}/> Ubuntu
+-  <GrFirefox style={{display: "inline", verticalAlign: "middle", marginRight: "8px"}} /> Firefox
+-  <FaChrome style={{display: "inline", verticalAlign: "middle", marginRight: "8px"}} /> Chrome
+-  <SiTorbrowser style={{display: "inline", verticalAlign: "middle", marginRight: "8px"}} /> Tor browser
+-  <FaTelegram style={{display: "inline", verticalAlign: "middle", marginRight: "8px"}} /> Telegram
+-  <VscVscode style={{display: "inline", verticalAlign: "middle", marginRight: "8px"}} /> VSCode
+-  <SiFilezilla style={{display: "inline", verticalAlign: "middle", marginRight: "8px"}} /> FileZilla
+- va boshqa ko'plab ilovalar.
+
+
+### <FaDocker style={{display: "inline", verticalAlign: "middle", marginRight: "8px"}} /> Docker compose bilan o'rnatish
+
+Eng avval bir folder oching va uning ichida `docker-compose.yml` faylini yarating.
+
+<FileTree>
+    <FileTree.Folder name="sizning-folderingiz" defaultOpen>
+        <FileTree.File name="docker-compose.yml" />
+    </FileTree.Folder>
+</FileTree>
+
+Ushbu faylga quyidagi kodni joylashtiring:
+
+```yaml copy
+services:
+  kasm:
+    image: lscr.io/linuxserver/kasm:latest
+    container_name: kasm
+    privileged: true
+    security_opt:
+      - apparmor:rootlesskit
+    environment:
+      - KASM_PORT=443
+      - DOCKER_MTU=1500
+    volumes:
+      - /path/to/kasm/data:/opt # Kasm ma'lumotlari saqlanadigan joy o'zingizga moslab o'zgartiring
+      - /path/to/kasm/profiles:/profiles # Kasm profillari saqlanadigan joy
+      - /dev/input:/dev/input # Input qurilmalariga kirish
+      - /run/udev/data:/run/udev/data # Udev ma'lumotlari
+    ports:
+      - 3000:3000
+      - 443:443
+    restart: unless-stopped
+```
+Yoki uni buyerdan yuklab olishingiz mumkin: [docker-compose.yml](/data/files/devops/docker/kasm/docker-compose.yml)
+
+**Tushuntirish:**
+- `image`: Linuxserver Kasm Docker imiji.
+- `container_name`: Konteyner nomi.
+- `privileged`: Konteynerga kengaytirilgan ruxsatlar beradi.
+- `security_opt`: AppArmor profilini sozlash.
+- `environment`: Muhit o'zgaruvchilari, masalan, Kasm porti va MTU.
+- `volumes`: Konteyner ichidagi ma'lumotlarni saqlash uchun joylar.
+- `ports`: Konteyner portlarini ochish.
+- `restart`: Konteynerni qayta ishga tushirish siyosati.
+
+
+
+Docker Compose bilan ishga tushirish
+Docker Compose yordamida Kasm'ni ishga tushirish uchun terminalda quyidagi buyruqni bajarishingiz kerak:
+```bash copy
+docker compose up -d
+```
+
+### Terminal bilan ishga tushirish
+
+Linuxserver Kasm'ni terminal bilan tezkor ishga tushirish uchun quyidagi buyruqlarni bajaring:
+
+<Tabs items={["Windows", "Linux va MacOS"]}>
+<Tabs.Tab label="Windows">
+```bash copy
+docker run -d --name=kasm --privileged --security-opt apparmor:rootlesskit -e KASM_PORT=443 -e DOCKER_MTU=1500 -v \path\to\kasm\data:/opt -v \path\to\kasm\profiles:/profiles -p 3000:3000 -p 443:443 --restart unless-stopped lscr.io/linuxserver/kasm:latest
+    ```
+</Tabs.Tab>
+    <Tabs.Tab label="Linux va MacOS">
+```bash copy
+docker run -d \
+--name=kasm \
+--privileged \
+--security-opt apparmor:rootlesskit \
+-e KASM_PORT=443 \
+-e DOCKER_MTU=1500 \
+-v /path/to/kasm/data:/opt \
+-v /path/to/kasm/profiles:/profiles \
+-v /dev/input:/dev/input \
+-v /run/udev/data:/run/udev/data \
+-p 3000:3000 \
+-p 443:443 \
+--restart unless-stopped \
+lscr.io/linuxserver/kasm:latest
+```
+    </Tabs.Tab>
+</Tabs>
+
+## 🌐 KasmWeb interfeysiga kirish
+Konteynerni muaffaqqiyatli ishga tushirganingizdan so'ng, brauzerda `https://localhost:3000` manziliga o'tib KasmWeb uchun parollaringizni o'rnatishingiz kerak.
+<Callout type="info">
+    **Diqqat**: Brauzerda faqat `https` protokolini ishlating, `http` ishlamaydi!
+</Callout>
+
+KasmWeb parollaringizni o'rnatganingizdan so'ng, sizga mana shunday interfeys ochiladi:
+![KasmWeb](/data/files/devops/docker/kasm/kasm-web-first-interface.png)
+
+Bu ro'yxatlardan o'zingizga kerak bo'lgan dasturlaringizni tanlang va `Install` tugmasini bosing. O'rnatish jarayoni biroz uzoq davom etishi mumkin. O'rnatish jarayoni tugagach, o'rnatilgan dasturlarni ishlatishingiz mumkin. Eslatma: Bu qurilmangiz resurslaridan ko'proq foydalanishi mumkin shuning uchun kuchliroq qurilmada sinab ko'rish tavsiya qilinadi.
+
+**Qolganini o'ziz bir amallarsiz 😁**
